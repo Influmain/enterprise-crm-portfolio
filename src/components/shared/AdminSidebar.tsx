@@ -7,14 +7,15 @@ import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { designSystem } from '@/lib/design-system'
 import { businessIcons } from '@/lib/design-system/icons'
-import { 
-  User, 
-  LogOut, 
+import {
+  User,
+  LogOut,
   ChevronRight,
   Sun,
   Moon,
   Shield,
-  Edit
+  Edit,
+  Database
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -60,6 +61,11 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
       href: '/admin/consulting-monitor',
       label: '상담 모니터링',
       icon: businessIcons.analytics
+    },
+    {
+      href: '/admin/demo-sessions',
+      label: '데모 세션 관리',
+      icon: Database
     },
     {
       href: '/admin/settings',

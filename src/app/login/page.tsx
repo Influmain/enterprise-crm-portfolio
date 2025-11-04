@@ -6,15 +6,16 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useToastHelpers } from '@/components/ui/Toast'
 import LoginModal from '@/components/auth/LoginModal'
 import { designSystem } from '@/lib/design-system'
-import { ArrowLeft, BarChart3 } from 'lucide-react'
+import { ArrowLeft, BarChart3, Zap, RefreshCw } from 'lucide-react'
 
 export default function LoginPage() {
   // 🔧 변수명 수정: profile -> userProfile
-  const { user, userProfile, loading } = useAuth()
+  const { user, userProfile, loading, signIn } = useAuth()
   const router = useRouter()
   const toast = useToastHelpers()
   const [mounted, setMounted] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
+  const [quickLoginLoading, setQuickLoginLoading] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -48,6 +49,26 @@ export default function LoginPage() {
 
   const handleClose = () => {
     router.push('/')
+  }
+
+  // 원클릭 로그인 핸들러
+  const handleQuickLogin = async (email: string, password: string, accountType: string) => {
+    setQuickLoginLoading(accountType)
+
+    try {
+      const { error } = await signIn(email, password)
+
+      if (error) {
+        throw error
+      }
+
+      toast.success('로그인 성공', `${accountType} 계정으로 로그인되었습니다.`)
+    } catch (error: any) {
+      console.error('원클릭 로그인 실패:', error)
+      toast.error('로그인 실패', error.message || '로그인 중 오류가 발생했습니다.')
+    } finally {
+      setQuickLoginLoading(null)
+    }
   }
 
   // 로딩 중
@@ -160,9 +181,122 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* 추가 안내 */}
+          {/* 데모 계정 안내 */}
           <div className="mt-8 text-center">
-            <div className="p-4 bg-bg-secondary rounded-lg">
+            <details open className="p-4 bg-gradient-to-br from-accent/5 to-success/5 rounded-lg border border-accent/20">
+              <summary className="cursor-pointer text-sm font-medium text-text-primary mb-2 hover:text-accent transition-colors">
+                🎯 데모 계정 정보
+              </summary>
+
+              <div className="mt-4 space-y-4 text-left">
+                {/* 최고관리자 */}
+                <div className="p-3 bg-white/50 dark:bg-black/20 rounded border border-border-primary">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-medium text-accent">최고관리자</div>
+                    <button
+                      onClick={() => handleQuickLogin('admin@demo.com', 'demo1234', '최고관리자')}
+                      disabled={quickLoginLoading !== null}
+                      className="px-3 py-1 text-xs bg-accent text-white rounded hover:bg-accent-dark
+                               transition-colors flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {quickLoginLoading === '최고관리자' ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          로그인 중...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3 h-3" />
+                          이 계정으로 로그인
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-text-secondary">
+                      <span className="font-mono">admin@demo.com</span>
+                    </p>
+                    <p className="text-xs text-text-tertiary">
+                      비밀번호: demo1234 | 전체 권한
+                    </p>
+                  </div>
+                </div>
+
+                {/* 영업팀장 */}
+                <div className="p-3 bg-white/50 dark:bg-black/20 rounded border border-border-primary">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-medium text-success">관리자 (영업1팀)</div>
+                    <button
+                      onClick={() => handleQuickLogin('manager1@demo.com', 'demo1234', '영업팀장')}
+                      disabled={quickLoginLoading !== null}
+                      className="px-3 py-1 text-xs bg-success text-white rounded hover:bg-success/90
+                               transition-colors flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {quickLoginLoading === '영업팀장' ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          로그인 중...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3 h-3" />
+                          이 계정으로 로그인
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-text-secondary">
+                      <span className="font-mono">manager1@demo.com</span>
+                    </p>
+                    <p className="text-xs text-text-tertiary">
+                      비밀번호: demo1234 | 영업1팀 관리
+                    </p>
+                  </div>
+                </div>
+
+                {/* 영업사원 */}
+                <div className="p-3 bg-white/50 dark:bg-black/20 rounded border border-border-primary">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-medium text-blue-500">영업사원</div>
+                    <button
+                      onClick={() => handleQuickLogin('sales1@demo.com', 'demo1234', '영업사원')}
+                      disabled={quickLoginLoading !== null}
+                      className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600
+                               transition-colors flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {quickLoginLoading === '영업사원' ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          로그인 중...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3 h-3" />
+                          이 계정으로 로그인
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-text-secondary">
+                      <span className="font-mono">sales1@demo.com</span>
+                    </p>
+                    <p className="text-xs text-text-tertiary">
+                      비밀번호: demo1234 | 김영업 (영업1팀)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border-primary">
+                  <p className="text-xs text-text-tertiary text-center">
+                    더 많은 계정 정보는 <span className="font-mono text-accent">DEMO_SETUP.md</span> 참고
+                  </p>
+                </div>
+              </div>
+            </details>
+
+            <div className="mt-4 p-4 bg-bg-secondary rounded-lg">
               <p className="text-sm text-text-secondary mb-2">
                 URL 직접 접근
               </p>

@@ -1,8 +1,8 @@
 // 📁 /app/layout.tsx
-// 🔄 변경점: ToastProvider import 추가 및 컴포넌트 래핑
+// 🔄 변경점: DemoSessionProvider 추가
 
 import { AuthProvider, AuthDebugInfo } from '@/lib/auth/AuthContext';
-import { ToastProvider } from '@/components/ui/Toast'; // ✅ 새로 추가
+import { ClientProviders } from '@/components/providers/ClientProviders';
 import './globals.css';
 
 export const metadata = {
@@ -19,10 +19,10 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <AuthProvider>
-          <ToastProvider>  {/* ✅ 새로 추가 */}
+          <ClientProviders>
             {children}
             <AuthDebugInfo />
-          </ToastProvider>  {/* ✅ 새로 추가 */}
+          </ClientProviders>
         </AuthProvider>
       </body>
     </html>

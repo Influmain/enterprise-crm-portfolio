@@ -197,7 +197,21 @@ export default function HomePage() {
                 <LogIn className="w-5 h-5 mr-2" />
                 시스템 로그인
               </button>
-              
+
+              {/* 데모 시작 버튼 */}
+              <Link
+                href="/demo/start"
+                className={designSystem.utils.cn(
+                  'w-full py-4 text-lg flex items-center justify-center rounded-lg',
+                  'bg-gradient-to-r from-success to-success-dark text-white',
+                  'shadow-md hover:shadow-lg transition-all',
+                  'hover:scale-[1.02]'
+                )}
+              >
+                <BarChart3 className="w-5 h-5 mr-2" />
+                데모 체험하기
+              </Link>
+
               {/* 시스템 상태 */}
               <div className="bg-bg-secondary rounded-lg p-4">
                 <div className="flex items-center justify-center gap-2 text-sm">

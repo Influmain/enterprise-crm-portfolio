@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useToastHelpers } from '@/components/ui/Toast'
 import { designSystem } from '@/lib/design-system'
-import { RefreshCw, X, LogIn, AtSign } from 'lucide-react'
+import { RefreshCw, X, LogIn, AtSign, Zap } from 'lucide-react'
 
 interface LoginModalProps {
   isOpen: boolean
@@ -21,6 +21,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
   const [customEmail, setCustomEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [quickLoginLoading, setQuickLoginLoading] = useState<string | null>(null)
 
   // 최종 이메일 계산
   const getFinalEmail = () => {
@@ -97,6 +98,28 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       setPassword('')
       setUseCustomEmail(false)
       onClose()
+    }
+  }
+
+  // 원클릭 로그인 핸들러
+  const handleQuickLogin = async (email: string, password: string, accountType: string) => {
+    setQuickLoginLoading(accountType)
+
+    try {
+      const { error } = await signIn(email, password)
+
+      if (error) {
+        throw error
+      }
+
+      toast.success('로그인 성공', `${accountType} 계정으로 로그인되었습니다.`)
+      onClose()
+      onSuccess?.()
+    } catch (error: any) {
+      console.error('원클릭 로그인 실패:', error)
+      toast.error('로그인 실패', error.message || '로그인 중 오류가 발생했습니다.')
+    } finally {
+      setQuickLoginLoading(null)
     }
   }
 
@@ -213,6 +236,62 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
               )}
             </button>
           </form>
+
+          {/* 원클릭 데모 로그인 */}
+          <div className="mt-6 pt-6 border-t border-border-primary">
+            <details open className="space-y-3">
+              <summary className="cursor-pointer text-xs font-medium text-text-secondary mb-3 hover:text-accent transition-colors">
+                🎯 데모 계정 원클릭 로그인
+              </summary>
+
+              <div className="space-y-2">
+                {/* 최고관리자 */}
+                <button
+                  onClick={() => handleQuickLogin('admin@demo.com', 'demo1234', '최고관리자')}
+                  disabled={quickLoginLoading !== null || loading}
+                  className="w-full px-3 py-2 text-xs bg-accent text-white rounded hover:bg-accent/90
+                           transition-colors flex items-center justify-between disabled:opacity-50"
+                >
+                  <span>최고관리자 (admin@demo.com)</span>
+                  {quickLoginLoading === '최고관리자' ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Zap className="w-3 h-3" />
+                  )}
+                </button>
+
+                {/* 영업팀장 */}
+                <button
+                  onClick={() => handleQuickLogin('manager1@demo.com', 'demo1234', '영업팀장')}
+                  disabled={quickLoginLoading !== null || loading}
+                  className="w-full px-3 py-2 text-xs bg-success text-white rounded hover:bg-success/90
+                           transition-colors flex items-center justify-between disabled:opacity-50"
+                >
+                  <span>영업팀장 (manager1@demo.com)</span>
+                  {quickLoginLoading === '영업팀장' ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Zap className="w-3 h-3" />
+                  )}
+                </button>
+
+                {/* 영업사원 */}
+                <button
+                  onClick={() => handleQuickLogin('sales1@demo.com', 'demo1234', '영업사원')}
+                  disabled={quickLoginLoading !== null || loading}
+                  className="w-full px-3 py-2 text-xs bg-blue-500 text-white rounded hover:bg-blue-600
+                           transition-colors flex items-center justify-between disabled:opacity-50"
+                >
+                  <span>영업사원 (sales1@demo.com)</span>
+                  {quickLoginLoading === '영업사원' ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Zap className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            </details>
+          </div>
 
           {/* 시스템 상태 */}
           <div className="mt-6 p-3 bg-bg-secondary rounded-lg">
