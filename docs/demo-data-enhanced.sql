@@ -15,12 +15,15 @@
 -- ============================================
 
 -- 기존 데모 데이터 초기화 (선택사항)
--- DELETE FROM counseling_activities;
--- DELETE FROM lead_assignments;
--- DELETE FROM lead_pool;
--- DELETE FROM user_permissions;
--- DELETE FROM upload_batches;
--- DELETE FROM users WHERE email LIKE '%demo.com';
+DELETE FROM counseling_activities;
+DELETE FROM lead_assignments;
+DELETE FROM lead_pool;
+DELETE FROM user_permissions;
+DELETE FROM upload_batches;
+DELETE FROM department_permissions WHERE user_id IN (
+  SELECT id FROM users WHERE email LIKE '%demo.com'
+);
+DELETE FROM users WHERE email LIKE '%demo.com';
 
 -- ============================================
 -- 1. 데모 사용자 생성
@@ -29,27 +32,19 @@
 -- 최고관리자
 INSERT INTO users (id, email, full_name, phone, department, role, is_super_admin, is_active)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', 'admin@demo.com', '김대표', '010-1000-0001', '경영지원팀', 'admin', true, true)
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email,
-  full_name = EXCLUDED.full_name,
-  is_active = EXCLUDED.is_active;
+  ('c464ad33-a926-4669-91e0-9227f5c76d3b', 'admin@demo.com', '김대표', '010-1000-0001', '경영지원팀', 'admin', true, true);
 
 -- 일반관리자들
 INSERT INTO users (id, email, full_name, phone, department, role, is_super_admin, is_active)
 VALUES
-  ('00000000-0000-0000-0000-000000000002', 'manager1@demo.com', '이팀장', '010-1000-0002', '영업1팀', 'admin', false, true),
-  ('00000000-0000-0000-0000-000000000008', 'manager2@demo.com', '박팀장', '010-1000-0008', '영업2팀', 'admin', false, true)
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email,
-  full_name = EXCLUDED.full_name,
-  is_active = EXCLUDED.is_active;
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'manager1@demo.com', '이팀장', '010-1000-0002', '영업1팀', 'admin', false, true),
+  ('00000000-0000-0000-0000-000000000008', 'manager2@demo.com', '박팀장', '010-1000-0008', '영업2팀', 'admin', false, true);
 
 -- 영업사원들 (총 10명)
 INSERT INTO users (id, email, full_name, phone, department, role, is_super_admin, is_active)
 VALUES
   -- 영업1팀 (5명)
-  ('00000000-0000-0000-0000-000000000003', 'sales1@demo.com', '김영업', '010-2000-0001', '영업1팀', 'counselor', false, true),
+  ('8cd01e90-87ea-46c0-bc01-9a222dc4165b', 'sales1@demo.com', '김영업', '010-2000-0001', '영업1팀', 'counselor', false, true),
   ('00000000-0000-0000-0000-000000000004', 'sales2@demo.com', '박상담', '010-2000-0002', '영업1팀', 'counselor', false, true),
   ('00000000-0000-0000-0000-000000000005', 'sales3@demo.com', '최영업', '010-2000-0003', '영업1팀', 'counselor', false, true),
   ('00000000-0000-0000-0000-000000000009', 'sales4@demo.com', '정영업', '010-2000-0004', '영업1팀', 'counselor', false, true),
@@ -60,11 +55,7 @@ VALUES
   ('00000000-0000-0000-0000-000000000007', 'sales7@demo.com', '송상담', '010-3000-0002', '영업2팀', 'counselor', false, true),
   ('00000000-0000-0000-0000-000000000011', 'sales8@demo.com', '윤영업', '010-3000-0003', '영업2팀', 'counselor', false, true),
   ('00000000-0000-0000-0000-000000000012', 'sales9@demo.com', '장상담', '010-3000-0004', '영업2팀', 'counselor', false, true),
-  ('00000000-0000-0000-0000-000000000013', 'sales10@demo.com', '임영업', '010-3000-0005', '영업2팀', 'counselor', false, true)
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email,
-  full_name = EXCLUDED.full_name,
-  is_active = EXCLUDED.is_active;
+  ('00000000-0000-0000-0000-000000000013', 'sales10@demo.com', '임영업', '010-3000-0005', '영업2팀', 'counselor', false, true);
 
 -- ============================================
 -- 2. 관리자 권한 부여
@@ -73,38 +64,34 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO user_permissions (user_id, permission_type, granted_by, is_active)
 VALUES
   -- 이팀장 (영업1팀) - 모든 권한
-  ('00000000-0000-0000-0000-000000000002', 'dashboard', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'leads', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'counselors', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'assignments', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'upload', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'consulting_monitor', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'phone_unmask', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000002', 'settings', '00000000-0000-0000-0000-000000000001', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'dashboard', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'leads', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'counselors', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'assignments', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'upload', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'consulting_monitor', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'phone_unmask', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', 'settings', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
 
   -- 박팀장 (영업2팀) - 제한된 권한 (설정 권한 없음, 전화번호 마스킹 해제 없음)
-  ('00000000-0000-0000-0000-000000000008', 'dashboard', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000008', 'leads', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000008', 'counselors', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000008', 'assignments', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000008', 'upload', '00000000-0000-0000-0000-000000000001', true),
-  ('00000000-0000-0000-0000-000000000008', 'consulting_monitor', '00000000-0000-0000-0000-000000000001', true)
-ON CONFLICT (user_id, permission_type) DO UPDATE SET
-  is_active = EXCLUDED.is_active;
+  ('00000000-0000-0000-0000-000000000008', 'dashboard', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('00000000-0000-0000-0000-000000000008', 'leads', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('00000000-0000-0000-0000-000000000008', 'counselors', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('00000000-0000-0000-0000-000000000008', 'assignments', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('00000000-0000-0000-0000-000000000008', 'upload', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true),
+  ('00000000-0000-0000-0000-000000000008', 'consulting_monitor', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true);
 
 -- ============================================
 -- 3. 부서별 접근 권한 설정
 -- ============================================
 
-INSERT INTO department_permissions (admin_id, department, granted_by, is_active)
+INSERT INTO department_permissions (user_id, department, granted_by, is_active)
 VALUES
   -- 이팀장은 영업1팀만 관리
-  ('00000000-0000-0000-0000-000000000002', '영업1팀', '00000000-0000-0000-0000-000000000001', true),
+  ('801e3aee-14b6-421c-81e0-3671a70e5868', '영업1팀', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true);
 
-  -- 박팀장은 영업2팀만 관리
-  ('00000000-0000-0000-0000-000000000008', '영업2팀', '00000000-0000-0000-0000-000000000001', true)
-ON CONFLICT (admin_id, department) DO UPDATE SET
-  is_active = EXCLUDED.is_active;
+  -- 박팀장은 영업2팀만 관리 (auth.users에 없으므로 주석 처리)
+  -- ('00000000-0000-0000-0000-000000000008', '영업2팀', 'c464ad33-a926-4669-91e0-9227f5c76d3b', true);
 
 -- ============================================
 -- 4. 샘플 고객 데이터 (lead_pool) - 총 80명
@@ -132,8 +119,7 @@ VALUES
   ('010-5000-0017', '나현우', NULL, 'A데이터', '연금보험', '2024-11-04', 'available'),
   ('010-5000-0018', '도서현', NULL, 'B데이터', '즉시연금', '2024-11-04', 'available'),
   ('010-5000-0019', '류민정', NULL, 'C데이터', '종합자산관리', '2024-11-04', 'available'),
-  ('010-5000-0020', '문지훈', NULL, 'A데이터', 'ISA 계좌', '2024-11-04', 'available')
-ON CONFLICT (phone) DO NOTHING;
+  ('010-5000-0020', '문지훈', NULL, 'A데이터', 'ISA 계좌', '2024-11-04', 'available');
 
 -- 배정된 고객 - 상담 진행 중 (30명)
 INSERT INTO lead_pool (phone, contact_name, real_name, data_source, contact_script, data_date, status)
@@ -155,6 +141,7 @@ VALUES
   ('010-6000-0014', '송지아', '송지아', 'B데이터', '노후 대비', '2024-10-21', 'assigned'),
   ('010-6000-0015', '장우진', '장우진', 'C데이터', '세금 절감', '2024-10-22', 'assigned'),
 
+
   -- 영업2팀 배정 (15명)
   ('010-6000-0016', '허진아', '허진아', 'A데이터', '재무 설계', '2024-10-15', 'assigned'),
   ('010-6000-0017', '나성훈', '나성훈', 'B데이터', '보험 정리', '2024-10-15', 'assigned'),
@@ -170,8 +157,7 @@ VALUES
   ('010-6000-0027', '유준서', '유준서', 'C데이터', '외화 예금', '2024-10-20', 'assigned'),
   ('010-6000-0028', '이서연', '이서연', 'A데이터', 'ETF 투자', '2024-10-21', 'assigned'),
   ('010-6000-0029', '장민석', '장민석', 'B데이터', '리츠 투자', '2024-10-21', 'assigned'),
-  ('010-6000-0030', '전수빈', '전수빈', 'C데이터', '신탁 상품', '2024-10-22', 'assigned')
-ON CONFLICT (phone) DO NOTHING;
+  ('010-6000-0030', '전수빈', '전수빈', 'C데이터', '신탁 상품', '2024-10-22', 'assigned');
 
 -- 계약 완료 고객 (30명) - 실적 데이터
 INSERT INTO lead_pool (phone, contact_name, real_name, data_source, contact_script, data_date, status)
@@ -210,8 +196,7 @@ VALUES
   ('010-7000-0027', '유완료', '유완료', 'C데이터', '채권 투자', '2024-10-11', 'completed'),
   ('010-7000-0028', '이실적', '이실적', 'A데이터', '주식 투자', '2024-10-12', 'completed'),
   ('010-7000-0029', '장계약', '장계약', 'B데이터', 'ETF 투자', '2024-10-13', 'completed'),
-  ('010-7000-0030', '전성사', '전성사', 'C데이터', '리츠 투자', '2024-10-14', 'completed')
-ON CONFLICT (phone) DO NOTHING;
+  ('010-7000-0030', '전성사', '전성사', 'C데이터', '리츠 투자', '2024-10-14', 'completed');
 
 -- ============================================
 -- 5. 배정 데이터 (lead_assignments) - 실제 업무 패턴 반영
@@ -221,8 +206,8 @@ ON CONFLICT (phone) DO NOTHING;
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
 SELECT
   lp.id,
-  '00000000-0000-0000-0000-000000000003', -- 김영업
-  '00000000-0000-0000-0000-000000000002', -- 이팀장이 배정
+  '8cd01e90-87ea-46c0-bc01-9a222dc4165b', -- 김영업
+  '801e3aee-14b6-421c-81e0-3671a70e5868', -- 이팀장이 배정
   CASE
     WHEN lp.phone LIKE '010-7%' THEN 'completed'
     WHEN lp.phone LIKE '010-6000-000[1-3]' THEN 'working'
@@ -236,15 +221,14 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0001', '010-6000-0002', '010-6000-0003', -- 상담 중
   '010-7000-0001', '010-7000-0002', '010-7000-0011', '010-7000-0021' -- 계약 완료
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 박상담 (sales2@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
 SELECT
   lp.id,
   '00000000-0000-0000-0000-000000000004',
-  '00000000-0000-0000-0000-000000000002',
+  '801e3aee-14b6-421c-81e0-3671a70e5868',
   CASE
     WHEN lp.phone LIKE '010-7%' THEN 'completed'
     WHEN lp.phone LIKE '010-6000-000[4-6]' THEN 'working'
@@ -258,15 +242,14 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0004', '010-6000-0005', '010-6000-0006',
   '010-7000-0003', '010-7000-0004', '010-7000-0012', '010-7000-0022'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 최영업 (sales3@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
 SELECT
   lp.id,
   '00000000-0000-0000-0000-000000000005',
-  '00000000-0000-0000-0000-000000000002',
+  '801e3aee-14b6-421c-81e0-3671a70e5868',
   CASE
     WHEN lp.phone LIKE '010-7%' THEN 'completed'
     WHEN lp.phone LIKE '010-6000-000[7-9]' THEN 'working'
@@ -280,15 +263,14 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0007', '010-6000-0008', '010-6000-0009',
   '010-7000-0005', '010-7000-0006', '010-7000-0013', '010-7000-0023'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 정영업 (sales4@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
 SELECT
   lp.id,
   '00000000-0000-0000-0000-000000000009',
-  '00000000-0000-0000-0000-000000000002',
+  '801e3aee-14b6-421c-81e0-3671a70e5868',
   CASE
     WHEN lp.phone LIKE '010-7%' THEN 'completed'
     WHEN lp.phone LIKE '010-6000-001[0-2]' THEN 'working'
@@ -302,15 +284,14 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0010', '010-6000-0011', '010-6000-0012',
   '010-7000-0007', '010-7000-0014', '010-7000-0024'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 홍상담 (sales5@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
 SELECT
   lp.id,
   '00000000-0000-0000-0000-000000000010',
-  '00000000-0000-0000-0000-000000000002',
+  '801e3aee-14b6-421c-81e0-3671a70e5868',
   CASE
     WHEN lp.phone LIKE '010-7%' THEN 'completed'
     WHEN lp.phone LIKE '010-6000-001[3-5]' THEN 'working'
@@ -324,8 +305,7 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0013', '010-6000-0014', '010-6000-0015',
   '010-7000-0008', '010-7000-0015', '010-7000-0025'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 영업2팀 배정 (강영업 - sales6@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
@@ -346,8 +326,7 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0016', '010-6000-0017', '010-6000-0018',
   '010-7000-0009', '010-7000-0016', '010-7000-0026'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 송상담 (sales7@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
@@ -368,8 +347,7 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0019', '010-6000-0020', '010-6000-0021',
   '010-7000-0010', '010-7000-0017', '010-7000-0027'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 윤영업 (sales8@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
@@ -390,8 +368,7 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0022', '010-6000-0023', '010-6000-0024',
   '010-7000-0018', '010-7000-0028'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 장상담 (sales9@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
@@ -412,8 +389,7 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0025', '010-6000-0026', '010-6000-0027',
   '010-7000-0019', '010-7000-0029'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- 임영업 (sales10@demo.com)
 INSERT INTO lead_assignments (lead_id, counselor_id, assigned_by, status, assigned_at)
@@ -434,14 +410,13 @@ FROM lead_pool lp
 WHERE lp.phone IN (
   '010-6000-0028', '010-6000-0029', '010-6000-0030',
   '010-7000-0020', '010-7000-0030'
-)
-ON CONFLICT DO NOTHING;
+);
 
 -- ============================================
 -- 6. 상담 기록 (counseling_activities) - 14단계 고객 등급 포함
 -- ============================================
 
--- 계약 완료 고객의 상담 기록 (customer_grade 포함)
+-- 계약 완료 고객의 상담 기록 (포함)
 INSERT INTO counseling_activities (
   assignment_id,
   contact_date,
@@ -449,7 +424,6 @@ INSERT INTO counseling_activities (
   actual_customer_name,
   counseling_memo,
   investment_budget,
-  customer_grade,
   contract_status,
   contract_amount,
   commission_amount
@@ -457,7 +431,7 @@ INSERT INTO counseling_activities (
 SELECT
   la.id,
   CURRENT_DATE - INTERVAL '30 days',
-  '전화',
+  'phone',
   lp.real_name,
   JSON_BUILD_ARRAY(
     JSON_BUILD_OBJECT(
@@ -483,7 +457,6 @@ SELECT
     WHEN 3 THEN '2억원'
     ELSE '7,000만원'
   END,
-  'payment_completed', -- 결제완료 (14단계 중 최고 등급)
   'contracted',
   CASE (RANDOM() * 5)::INT
     WHEN 0 THEN 3000000
@@ -505,7 +478,7 @@ JOIN users u ON la.counselor_id = u.id
 WHERE lp.phone LIKE '010-7%'
 LIMIT 30;
 
--- 상담 중 고객의 상담 기록 (다양한 customer_grade)
+-- 상담 중 고객의 상담 기록 (다양한)
 INSERT INTO counseling_activities (
   assignment_id,
   contact_date,
@@ -513,7 +486,6 @@ INSERT INTO counseling_activities (
   actual_customer_name,
   counseling_memo,
   investment_budget,
-  customer_grade,
   contract_status,
   contract_amount,
   next_contact_date
@@ -522,9 +494,9 @@ SELECT
   la.id,
   CURRENT_DATE - INTERVAL '5 days',
   CASE (RANDOM() * 3)::INT
-    WHEN 0 THEN '전화'
-    WHEN 1 THEN '카카오톡'
-    ELSE '문자'
+    WHEN 0 THEN 'phone'
+    WHEN 1 THEN 'kakao'
+    ELSE 'sms'
   END,
   lp.real_name,
   JSON_BUILD_ARRAY(
@@ -547,21 +519,6 @@ SELECT
     WHEN 3 THEN '1억원'
     WHEN 4 THEN '2억원'
     ELSE '미정'
-  END,
-  CASE (RANDOM() * 13)::INT
-    WHEN 0 THEN 'interested' -- 관심있음
-    WHEN 1 THEN 'reconsulting_requested' -- 재상담 요청
-    WHEN 2 THEN 'open_entry_guide' -- 오픈+개설안내
-    WHEN 3 THEN 'management' -- 운용
-    WHEN 4 THEN 'payment_probable' -- 납입가능성
-    WHEN 5 THEN 'payment_scheduled' -- 납입예정
-    WHEN 6 THEN 'document_delivered' -- 서류전달
-    WHEN 7 THEN 'visiting_requested' -- 방문요청
-    WHEN 8 THEN 'contract_pending' -- 계약대기
-    WHEN 9 THEN 'contract_in_progress' -- 계약진행중
-    WHEN 10 THEN 'payment_in_progress' -- 납입진행중
-    WHEN 11 THEN 'payment_scheduled_this_month' -- 이번달 납입 예정
-    ELSE 'payment_scheduled_next_month' -- 다음달 납입 예정
   END,
   'pending',
   NULL,
@@ -587,12 +544,11 @@ INSERT INTO upload_batches (
   completed_at
 )
 VALUES
-  ('demo_leads_2024_11_batch1.xlsx', 'xlsx', 50, 48, 2, 'completed', '00000000-0000-0000-0000-000000000001', CURRENT_DATE - INTERVAL '5 days'),
-  ('demo_leads_2024_11_batch2.csv', 'csv', 80, 75, 5, 'completed', '00000000-0000-0000-0000-000000000002', CURRENT_DATE - INTERVAL '10 days'),
-  ('demo_leads_2024_10.xlsx', 'xlsx', 100, 95, 5, 'completed', '00000000-0000-0000-0000-000000000002', CURRENT_DATE - INTERVAL '30 days'),
+  ('demo_leads_2024_11_batch1.xlsx', 'xlsx', 50, 48, 2, 'completed', 'c464ad33-a926-4669-91e0-9227f5c76d3b', CURRENT_DATE - INTERVAL '5 days'),
+  ('demo_leads_2024_11_batch2.csv', 'csv', 80, 75, 5, 'completed', '801e3aee-14b6-421c-81e0-3671a70e5868', CURRENT_DATE - INTERVAL '10 days'),
+  ('demo_leads_2024_10.xlsx', 'xlsx', 100, 95, 5, 'completed', '801e3aee-14b6-421c-81e0-3671a70e5868', CURRENT_DATE - INTERVAL '30 days'),
   ('demo_leads_2024_09.csv', 'csv', 200, 190, 10, 'completed', '00000000-0000-0000-0000-000000000008', CURRENT_DATE - INTERVAL '60 days'),
-  ('demo_leads_2024_08.xlsx', 'xlsx', 150, 145, 5, 'completed', '00000000-0000-0000-0000-000000000001', CURRENT_DATE - INTERVAL '90 days')
-ON CONFLICT DO NOTHING;
+  ('demo_leads_2024_08.xlsx', 'xlsx', 150, 145, 5, 'completed', 'c464ad33-a926-4669-91e0-9227f5c76d3b', CURRENT_DATE - INTERVAL '90 days');
 
 -- ============================================
 -- 데모 데이터 생성 완료!

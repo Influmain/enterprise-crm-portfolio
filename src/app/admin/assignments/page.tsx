@@ -31,7 +31,6 @@ import {
 interface Lead {
   id: string;
   phone: string;
-  name: string;
   contact_name: string;
   real_name?: string;
   data_source: string;
@@ -347,7 +346,7 @@ function AssignmentsPageContent() {
       let query = supabase
         .from('lead_pool')
         .select(`
-          id, phone, name, contact_name, data_source, contact_script, 
+          id, phone, contact_name, data_source, contact_script,
           created_at, upload_batch_id, status, data_date, real_name
         `, { count: 'exact' })
         .eq('status', 'available')
